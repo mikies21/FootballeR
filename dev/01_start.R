@@ -21,12 +21,13 @@
 golem::fill_desc(
   pkg_name = "FootballeR", # The Name of the package containing the App
   pkg_title = "PKG_TITLE", # The Title of the package containing the App
-  pkg_description = "PKG_DESC.", # The Description of the package containing the App
-  author_first_name = "AUTHOR_FIRST", # Your First Name
-  author_last_name = "AUTHOR_LAST", # Your Last Name
-  author_email = "AUTHOR@MAIL.COM", # Your Email
-  repo_url = NULL # The URL of the GitHub Repo (optional)
-)
+  pkg_description = "Shiny App for Football team post match analysis,
+                      Team will use this tool to create reports to feedback the manager final match assesment", # The Description of the package containing the App
+  author_first_name = "Michele", # Your First Name
+  author_last_name = "Fresneda Alarcon", # Your Last Name
+  author_email = "michelefresneda@gmail.com", # Your Email
+  repo_url = "https://github.com/mikies21/FootballeR" # The URL of the GitHub Repo (optional)
+  )
 
 ## Set {golem} options ----
 golem::set_golem_options()
