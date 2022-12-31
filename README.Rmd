@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of FootballeR is to ...
+The goal of FootballeR is to ... filling this in the new year
 
 ## Installation
 
@@ -34,7 +34,7 @@ You can install the development version of FootballeR like so:
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(FootballeR)
+#library(FootballeR)
 ## basic example code
 ```
 
