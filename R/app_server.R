@@ -49,6 +49,11 @@ app_server <- function(input, output, session) {
   # and printed in the second one.
   # The server functions don't return any value per se
   r <- reactiveValues()
+
+  ### start page module that shows league data
+  mod_StartPage_server("StartPage_1")
+
+
   mod_CollectMatchData_server("CollectMatchData_1", r,
                               matchesDF)
   mod_ShotPage_server("ShotPage_1", r,

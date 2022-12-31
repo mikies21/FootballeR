@@ -10,6 +10,40 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # Your application UI logic
     bs4Dash::dashboardPage(
+
+      ########## Theme Colour Choice
+      freshTheme = fresh::create_theme(
+        fresh::bs4dash_vars(
+          navbar_light_color = "#bec5cb",
+          navbar_light_active_color = "#FFF",
+          navbar_light_hover_color = "#FFF"
+        ),
+        fresh::bs4dash_yiq(
+          contrasted_threshold = 10,
+          text_dark = "#FFF",
+          text_light = "#272c30"
+        ),
+        fresh::bs4dash_layout(
+          main_bg = "#353c42"
+        ),
+        fresh::bs4dash_sidebar_light(
+          bg = "#272c30",
+          color = "#bec5cb",
+          hover_color = "#FFF",
+          submenu_bg = "#272c30",
+          submenu_color = "#FFF",
+          submenu_hover_color = "#FFF"
+        ),
+        fresh::bs4dash_status(
+          primary = "#5E81AC", danger = "#BF616A", light = "#272c30"
+        ),
+        fresh::bs4dash_color(
+          gray_900 = "#FFF"
+        )
+      ),
+
+
+      ########## HEADER UI
       header = bs4Dash::dashboardHeader(
         title = bs4Dash::dashboardBrand(
         title = "FootballeR",
@@ -21,6 +55,8 @@ app_ui <- function(request) {
       sidebarIcon = shiny::icon("bars"),
       controlbarIcon = shiny::icon("th"),
       fixed = FALSE),
+
+      ########## #LEFT SIDE BAR UI
       sidebar = bs4Dash::dashboardSidebar(
         minified = TRUE, # when sidebar collapsed keep sidebar visible
         expandOnHover = FALSE, # do not expand on hover
@@ -31,6 +67,13 @@ app_ui <- function(request) {
             icon = shiny::icon("sliders")
           ),
           bs4Dash::sidebarHeader("Attacking analysis"),
+          ##### leaving this as an example of how to do subitems
+          #bs4Dash:: menuItem(text = "test1",tabName = "test1", startExpanded = T,
+          #                   bs4Dash::menuSubItem(text = "subtest1", tabName = "subtest1",
+          #                                        ),
+          #                   bs4Dash::menuSubItem(text = "subtest2", tabName = "subtest2",
+          #                   )),
+          #####
           bs4Dash:: menuItem(
             "Shot",
             tabName = "Shot",
@@ -43,12 +86,14 @@ app_ui <- function(request) {
             )
           )
         ),
+
+      #### RIGHT SIDEBAR UI
       controlbar = bs4Dash::dashboardControlbar(
         id = "ControlBar",
         disable = FALSE,
         width = 250,
         collapsed = FALSE,
-        overlay = TRUE,
+        overlay = FALSE,
         skin = "dark",
         pinned = TRUE,
         bs4Dash::controlbarMenu(
@@ -67,17 +112,31 @@ app_ui <- function(request) {
               inputId = "CollectData",
               label = "Collect data"
             ),
-            #shiny::conditionalPanel(
+            conditionalPanel(
+              condition = "input.CollectData == 0",
+              "Click this! \n
+              and then",
+            ),
+            conditionalPanel(
+              condition = "input.CollectData != 0",
               mod_CollectMatchData_ui("CollectMatchData_1")
-            #)
+              )
+            )
           )
-        )
-      ),
+        ),
+
+
+      ###### MAIN BODY UI
       body = bs4Dash::dashboardBody(
         bs4Dash::tabItems(
+          ####
+          bs4Dash::tabItem(tabName = "subtest1"),
+          bs4Dash::tabItem(tabName = "subtest2"),
+
+          ####
           bs4Dash::tabItem(
             tabName = "Start",
-            bs4Dash::box(title = "starting Box", "test")
+            mod_StartPage_ui("StartPage_1")
           ),
           bs4Dash::tabItem(
             tabName = "Shot",
@@ -87,7 +146,11 @@ app_ui <- function(request) {
             tabName = "Possession"
           )
         )
-      )
+      ),
+      footer = bs4Dash::dashboardFooter(
+        left = "Thank you to StatsBomb for the free practice data",
+        right = tags$a(href="https://twitter.com/micfresneda", "@micfresneda"),
+        fixed = FALSE)
     )
   )
 }
@@ -114,6 +177,7 @@ golem_add_external_resources <- function() {
     ),
     # Add here other external resources
     # for example, you can add
-    shinyalert::useShinyalert(force = T)
+    shinyalert::useShinyalert(force = T),
+    #thematic::thematic_shiny()
   )
 }

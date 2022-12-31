@@ -11,26 +11,24 @@ mod_CollectMatchData_ui <- function(id){
   ns <- NS(id)
   tagList(
     #shiny::fluidRow(
-      shiny::column(
-        width = 4,
         shiny::uiOutput(outputId = ns("TeamsUI"))
+      ,
+      shinyWidgets::radioGroupButtons(
+        inputId = ns("HomeAway"),
+        label = NULL,
+        choices = c("Home", "Away"),
+        selected = "Home",
+        justified = TRUE,
+        checkIcon = list(
+          yes = shiny::icon("ok",
+                     lib = "glyphicon"))
       ),
-      shiny::column(
-        width = 2,
-        shiny::radioButtons(inputId = ns("HomeAway"),
-                            choices = c("Home", "Away"),
-                            label = NULL,
-                            selected = "Home")
-      ),
-      shiny::column(
-        width = 4,
-        shiny::uiOutput(outputId = ns("MatchUI"))
-      ),
-      shiny::column(
-        width = 4,
+        shiny::uiOutput(outputId = ns("MatchUI")),
         shiny::actionButton(inputId = ns("CollectMatchData"),
-                            label = "Collect Match Data")
-      )
+                            label = "Collect Match Data"),
+      "Now Press Here!\n
+      get all the Match Events and start the Match Analysis!"
+
     #)
   )
 }
@@ -78,7 +76,7 @@ mod_CollectMatchData_server <- function(id, r, matchesDF){
     ##### runs only after actionButton input$CollectMatchData
     r$MatchEvents <- shiny::eventReactive(input$CollectMatchData, {
       SelectedMatch <- subset(TeamMatches(), subset = PastedMatches == input$Match)
-      StatsBombR::free_allevents(MatchesDF = SelectedMatch)
+      StatsBombR::allclean(StatsBombR::free_allevents(MatchesDF = SelectedMatch))
     })
 
   })

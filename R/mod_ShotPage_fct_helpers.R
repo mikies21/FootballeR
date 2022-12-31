@@ -7,13 +7,18 @@
 #testMatchID = 303731
 #testMatches <- StatsBombR::FreeMatches(Competitions = Competitions[Competitions$competition_name == "La Liga" & Competitions$season_name == "2019/2020",])
 #testMatchEvents <- StatsBombR::free_allevents(MatchesDF = testMatches[testMatches$match_id == testMatchID, ])
-#plot_xG_RaceChart(matchEvents = testMatchEvents, matchID = 303731)
+#plot_xG_RaceChart(matchEvents = testMatchEvents, testMatches,  matchID = 303731)
 
-plot_xG_RaceChart <- function(matchEvents, matchID, ExtraTime = F) {
-  ## get home and away team name
+plot_xG_RaceChart <- function(matchEvents, MatchesDF, matchID, ExtraTime = F) {
 
-  home_team <- unique(subset(matchEvents, subset = match_id == matchID)$team.name)[1]
-  away_team <- unique(subset(matchEvents, subset = match_id == matchID)$team.name)[2]
+  ## using the season MatchDF get home and away infomation
+  ## uild the plot title here
+  home_team <- subset(x = MatchesDF, subset = match_id == matchID)$home_team.home_team_name
+  home_score <- subset(x = MatchesDF, subset = match_id == matchID)$home_score
+  away_team <- subset(x = MatchesDF, subset = match_id == matchID)$away_team.away_team_name
+  away_score <- subset(x = MatchesDF, subset = match_id == matchID)$away_score
+
+  plot_subtitle <- paste0(home_team, " (", home_score, ") v (",away_score,") ", away_team)
   ## get times HT and FT
   halfs_end <- unique(subset(matchEvents, subset = type.name == "Half End" & match_id == matchID)$minute)
 
@@ -93,19 +98,20 @@ plot_xG_RaceChart <- function(matchEvents, matchID, ExtraTime = F) {
 
 
   ggplot2::ggplot() +
-    ggplot2::geom_segment(ggplot2::aes(y = 0, yend = round(max(Shot_df$cum_xG)), x = halfs_end[1], xend = halfs_end[1]), colour = "grey") +
+    #ggplot2::geom_segment(ggplot2::aes(y = 0, yend = round(max(Shot_df$cum_xG)), x = halfs_end[1], xend = halfs_end[1]), colour = "grey") +
+    ggplot2::geom_vline(xintercept = halfs_end[1], colour = "grey")+
     ggplot2::geom_line(
       data = team_xG_df,
-      ggplot2::aes(x = minute, y = cum_xG, colour = team.name), show.legend = F
+      ggplot2::aes(x = as.numeric(minute), y = cum_xG, colour = team.name), show.legend = F
     ) +
     ggplot2::geom_point(
       data = Goal_df,
-      ggplot2::aes(x = minute, y = cum_xG, colour = team.name),
+      ggplot2::aes(x = as.numeric(minute), y = cum_xG, colour = team.name),
       size = 3
     ) +
     ggrepel::geom_text_repel(
       data = Goal_df,
-      ggplot2::aes(x = minute, y = cum_xG, label = player.name),
+      ggplot2::aes(x = as.numeric(minute), y = cum_xG, label = player.name),
       size = 3,
       vjust = 1,
       hjust = 1
@@ -115,12 +121,12 @@ plot_xG_RaceChart <- function(matchEvents, matchID, ExtraTime = F) {
       breaks = breaks,
       labels = labels
     ) +
-    ggplot2::scale_y_continuous(expand = c(0, 0)) +
-    ggplot2::labs(x = NULL, y = NULL, title = "xG Race Chart", subtitle = paste0(home_team, " v ", away_team)) +
+    #ggplot2::scale_y_continuous(expand = c(0,0)) +
+    ggplot2::theme_minimal()+
+    ggplot2::labs(x = NULL, y = NULL, title = "xG Race Chart", subtitle = plot_subtitle) +
     ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 0.1),
       legend.title = ggplot2::element_blank(),
       plot.title = ggplot2::element_text(hjust = 0.5),
       plot.subtitle = ggplot2::element_text(hjust = 0.5)
     )
-}#
+}
