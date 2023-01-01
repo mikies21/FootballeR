@@ -7,50 +7,47 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
 <!-- badges: end -->
 
-The goal of FootballeR is to … filling this in the new year
+The goal of FootballeR is to streamline and condense all the football
+match analysis into one single app without the need to lern or use R
+directly. The data has been made freely available by
+[StatsBomb](https://statsbomb.com/) using their
+[StatsBombR](https://github.com/statsbomb/StatsBombR) package. The app
+is built using Rshiny (with the
+[golem](https://github.com/ThinkR-open/golem) framework) as a side
+project to improve my shiny skills and combine it with my passion for
+football and analysis!
+
+The app is not hosted on shinyapps.io yet. soon..
 
 ## Installation
 
 You can install the development version of FootballeR like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+remotes::install_github("mikies21/FootballeR")
 ```
 
-## Example
+## Start the app
 
-This is a basic example which shows you how to solve a common problem:
+If you are familiar with the golem framework, the app IS essentially a
+package.
 
-``` r
-#library(FootballeR)
-## basic example code
-```
+1.  Once you Clone the Repository
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+2.  open the file **FootballeR.Rproj**
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
+3.  navigate to the dev/run\_dev and run the pre-defined commands
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/v1/examples>.
+The app should open and you should be able to browse all the free
+leagues (hint: La Liga has seasons going back from 2010), pick the match
+you would like to analyse and have fun.
 
-You can also embed plots, for example:
+## Development Areas
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+FootballeR shiny app only has the attacking section for its first
+release, which focuses on shots. Due to my limited time, I will not be
+looking at the defensive section anytime soon. Anyone can contribute to
+this project and raise issues.
