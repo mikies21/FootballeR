@@ -11,11 +11,9 @@ mod_ShotPage_ui <- function(id){
   ns <- NS(id)
   tagList(
     shiny::fluidRow(
-      shiny::column(
-        width = 8,
         bs4Dash::tabBox(
           collapsible = F,
-          width = 12,
+          width = 8,
           selected = "xgPlot",
           shiny::tabPanel(
             title = "xgPlot",
@@ -28,8 +26,7 @@ mod_ShotPage_ui <- function(id){
             title = "test2",
             "test 2 content"
             )
-          )
-        ),
+          ),
       shiny::column(
         width = 4,
         DT::DTOutput(
@@ -38,7 +35,9 @@ mod_ShotPage_ui <- function(id){
       )
     ),
     shiny::fluidRow(
-      shiny::column(
+      bs4Dash::box(
+        collapsible = F,
+        closable = F,
         width = 8,
         shiny::plotOutput(
           outputId = ns("pitchPlot"),
@@ -46,6 +45,7 @@ mod_ShotPage_ui <- function(id){
         ),
       shiny::column(width = 4,
         shiny::uiOutput(outputId = ns("ShotPlayerUI")),
+        shiny::uiOutput(outputId = ns("ShotPlayersUI")),
         shiny::textOutput(outputId = ns("PlayerShotStat"))
         )
       )
@@ -61,24 +61,47 @@ mod_ShotPage_server <- function(id, r, matchesDF){
     ns <- session$ns
 
     output$xG_matchPlot <- renderPlot({
-      plot_xG_RaceChart(matchEvents = r$MatchEvents(), MatchesDF = matchesDF(), matchID = unique(r$MatchEvents()$match_id))
+        plot_xG_RaceChart(matchEvents = r$MatchEvents(),
+                          MatchesDF = matchesDF(),
+                          matchID = unique(r$MatchEvents()$match_id))
     })
 
-    MatchShots <- reactive({r$MatchEvents() %>%
-      dplyr::filter(type.name == "Shot")})
+    MatchShots <- reactive({
+      r$MatchEvents() %>%
+        dplyr::filter(type.name == "Shot") %>%
+        dplyr::mutate(location.x = ifelse(team.name == unique(matchesDF()$home_team.home_team_name), location.x, 120 - location.x),
+                      location.y = ifelse(team.name == unique(matchesDF()$home_team.home_team_name), location.y, 80 - location.y))
+
+      })
 
     output$ShotPlayerUI <- shiny::renderUI({
       MatchPlayers <- unique(MatchShots()$player.name)
       MatchTeams <- unique(MatchShots()$team.name)
       shiny::selectizeInput(
         inputId = ns("ShotPlayer"),
-        label = "Shots by",
-        choices = c("Everyone", MatchTeams, MatchPlayers))
+        label = "team Shots",
+        multiple = F,
+        selected = "Everyone",
+        choices = c("Everyone", MatchTeams))
+    })
+
+    output$ShotPlayersUI <- shiny::renderUI({
+      if (input$ShotPlayer == "Everyone") {
+        MatchPlayers <- unique(MatchShots()$player.name)
+      } else {
+        MatchPlayers <- unique(MatchShots() %>%
+                                 dplyr::filter(team.name == input$ShotPlayer) %>%
+                                 dplyr::pull(player.name))
+      }
+      shinyWidgets::multiInput(
+        inputId = ns("ShotPlayers"),
+        label = "player shots",
+        choices = MatchPlayers,
+        selected = NULL
+      )
     })
 
     output$ShotStats <-  DT::renderDT({
-
-
       MatchShots() %>%
         dplyr::group_by(team.name) %>%
         dplyr::summarise(`Total Shots` = dplyr::n(),
@@ -86,7 +109,7 @@ mod_ShotPage_server <- function(id, r, matchesDF){
                          `xG/Shot` = round(sum(shot.statsbomb_xg)/dplyr::n(), 2)) %>%
         t() %>%
         janitor::row_to_names(row_number = 1)
-    },style = "bootstrap")
+    },options = list(dom = 't',ordering = F))
 
 
     PlayerMatchShot <- shiny::reactive({
@@ -124,47 +147,30 @@ mod_ShotPage_server <- function(id, r, matchesDF){
 
     output$pitchPlot <- renderPlot({
       if (input$ShotPlayer == "Everyone") {
-        ShotPlot <- SBpitch::create_Pitch()+
-          ggplot2::geom_point(data = MatchShots(),
-                              ggplot2::aes(x = location.x,
-                                           y = location.y,
-                                           shape = shot.type.name,
-                                           colour = shot.statsbomb_xg),
-                              size = 9)
-      } else if (input$ShotPlayer == unique(MatchShots()$team.name)[1]) {
-        ShotPlot <- SBpitch::create_Pitch()+
-          ggplot2::geom_point(data = MatchShots() %>%
-                                dplyr::filter(team.name == unique(MatchShots()$team.name)[1]),
-                              ggplot2::aes(x = location.x,
-                                           y = location.y,
-                                           shape = shot.type.name,
-                                           colour = shot.statsbomb_xg),
-                              size = 9)
-      } else if (input$ShotPlayer == unique(MatchShots()$team.name)[2]) {
-        ShotPlot <- SBpitch::create_Pitch()+
-          ggplot2::geom_point(data = MatchShots() %>%
-                                dplyr::filter(team.name == unique(MatchShots()$team.name)[2]),
-                              ggplot2::aes(x = location.x,
-                                           y = location.y,
-                                           shape = shot.type.name,
-                                           colour = shot.statsbomb_xg),
-                              size = 9)
-      } else {
-        ShotPlot <- SBpitch::create_Pitch()+
-          ggplot2::geom_point(data = MatchShots() %>%
-                                dplyr::filter(player.name == input$ShotPlayer),
-                              ggplot2::aes(x = location.x,
-                                           y = location.y,
-                                           shape = shot.type.name,
-                                           colour = shot.statsbomb_xg),
-                              size = 9)
+        MatchShots = MatchShots()
+      } else if (input$ShotPlayer %in% c(unique(matchesDF()$home_team.home_team_name),
+                                         unique(matchesDF()$away_team.away_team_name))) {
+        MatchShots = MatchShots() %>%
+          dplyr::filter(team.name == input$ShotPlayer)
       }
 
-      ShotPlot <- ShotPlot +
+      if (!is.null(input$ShotPlayers)) {
+        MatchShots <- MatchShots %>%
+          dplyr::filter(player.name %in% input$ShotPlayers)
+      }
+
+      ShotPlot <- SBpitch::create_Pitch()+
+        ggplot2::geom_point(data = MatchShots,
+                            ggplot2::aes(x = location.x,
+                                         y = location.y,
+                                         shape = shot.type.name,
+                                         colour = shot.statsbomb_xg),
+                            size = 9) +
         ggplot2::scale_color_gradientn(colours = c("blue", "yellow", "darkred"),
-                                       values = c(0,0.5,1))+
-        xlim(c(60,120))+
-        ggplot2::coord_flip()
+                                       limits = c(0,1),
+                                       values = c(0,0.5,1))
+      #xlim(c(60,120))
+      #ggplot2::coord_flip()
 
       ShotPlot
 
