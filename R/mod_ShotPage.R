@@ -63,7 +63,8 @@ mod_ShotPage_server <- function(id, r, matchesDF){
     output$xG_matchPlot <- renderPlot({
         plot_xG_RaceChart(matchEvents = r$MatchEvents(),
                           MatchesDF = matchesDF(),
-                          matchID = unique(r$MatchEvents()$match_id))
+                          matchID = unique(r$MatchEvents()$match_id)) +
+        ggplot2::theme(legend.position = "bottom")
     })
 
     MatchShots <- reactive({
@@ -159,7 +160,11 @@ mod_ShotPage_server <- function(id, r, matchesDF){
           dplyr::filter(player.name %in% input$ShotPlayers)
       }
 
-      ShotPlot <- SBpitch::create_Pitch()+
+      ShotPlot <- SBpitch::create_Pitch(line_colour = "black",
+                                        grass_colour = "white",
+                                        background_colour = "white",
+                                        goal_colour = "black",
+                                        goaltype = "box")+
         ggplot2::geom_point(data = MatchShots,
                             ggplot2::aes(x = location.x,
                                          y = location.y,
@@ -168,7 +173,14 @@ mod_ShotPage_server <- function(id, r, matchesDF){
                             size = 9) +
         ggplot2::scale_color_gradientn(colours = c("blue", "yellow", "darkred"),
                                        limits = c(0,1),
-                                       values = c(0,0.5,1))
+                                       values = c(0,0.5,1))+
+        ggplot2::scale_shape_manual(values = c("Corner" = 18, "Free Kick" = 18, "Open Play" = 16, "Penalty" = 8, "Kick Off" = 18, "Blocked" = 4))+
+        ggplot2::theme(legend.position = "bottom")+
+        ggplot2::labs(colour = "xG", shape = "Shot Type")
+
+        #### shot types c("Corner", "Free Kick", "Open Play", "Penalty", "Kick Off", "Blocked")
+        #### select the shape for each
+        #ggplot2::scale_shape_manual()
       #xlim(c(60,120))
       #ggplot2::coord_flip()
 
