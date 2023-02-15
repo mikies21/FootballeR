@@ -143,7 +143,8 @@ app_ui <- function(request) {
             mod_ShotPage_ui("ShotPage_1")
           ),
           bs4Dash::tabItem(
-            tabName = "Possession"
+            tabName = "Possession",
+            mod_PossessionPage_ui("PossessionPage_1")
           )
         )
       ),

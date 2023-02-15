@@ -54,8 +54,16 @@ app_server <- function(input, output, session) {
   mod_StartPage_server("StartPage_1")
 
 
-  mod_CollectMatchData_server("CollectMatchData_1", r,
+  mod_CollectMatchData_server("CollectMatchData_1",
+                              r,
                               matchesDF)
-  mod_ShotPage_server("ShotPage_1", r,
+
+  mod_ShotPage_server("ShotPage_1",
+                      r,
                       matchesDF)
+
+  mod_PossessionPage_server("PossessionPage_1",
+                            r,
+                            matchesDF)
+
 }
