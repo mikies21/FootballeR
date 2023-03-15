@@ -10,9 +10,11 @@
 mod_CollectMatchData_ui <- function(id){
   ns <- NS(id)
   tagList(
+    ###
+
     #shiny::fluidRow(
-        shiny::uiOutput(outputId = ns("TeamsUI"))
-      ,
+
+      shiny::uiOutput(outputId = ns("TeamsUI")),
       shinyWidgets::radioGroupButtons(
         inputId = ns("HomeAway"),
         label = NULL,
@@ -21,16 +23,17 @@ mod_CollectMatchData_ui <- function(id){
         justified = TRUE,
         checkIcon = list(
           yes = shiny::icon("ok",
-                     lib = "glyphicon"))
+                            lib = "glyphicon"))
       ),
-        shiny::uiOutput(outputId = ns("MatchUI")),
-        shiny::actionButton(inputId = ns("CollectMatchData"),
-                            label = "Collect Match Data"),
+      shiny::uiOutput(outputId = ns("MatchUI")),
+      shiny::actionButton(inputId = ns("CollectMatchData"),
+                          label = "Collect Match Data"),
       "Now Press Here!\n
       get all the Match Events and start the Match Analysis!"
 
-    #)
-  )
+      #)
+
+    )
 }
 
 #' CollectMatchData Server Functions

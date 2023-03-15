@@ -6,41 +6,63 @@
 #' @noRd
 app_server <- function(input, output, session) {
   # Your application server logic
+
+  Comp <- shiny::eventReactive(input$StartApp ,{
+    if (attempt::is_try_error(StatsBombR::FreeCompetitions())){
+      # Notify the user
+      shinyalert::shinyalert(text = "Could not connect")
+    } else {
+      return(StatsBombR::FreeCompetitions())
+    }
+    })
+
   ### competition name based on contry selection
+
   output$CompetitionUI <- shiny::renderUI({
-    country_name <- subset(x = Competitions, subset = country_name == input$Country)
+    comp <- subset(x = Comp(),
+                   subset = competition_gender == input$Gender)
+    comp <- comp[, c("country_name", "competition_name")]
+    comp <- split(comp, comp$country_name)
+    comp <- lapply(comp, function(x) {
+      setNames(unique(x)$competition_name, unique(x)$competition_name)
+
+    })
+    #comp <- lapply(comp, function(x) unique(x)$competition_name)
     ## ui output
     shiny::selectizeInput(inputId = "Competition",
-                       label = NULL,
-                       choices = unique(country_name$competition_name),
-                       multiple = F
-                       )
+                            label = "Competition",
+                            choices = comp,
+                            multiple = F
+                            )
+
   })
+
   ### season id based on competition selection
   output$SeasonUI <- shiny::renderUI({
-    country_name <- subset(x = Competitions, subset = country_name == input$Country)
+    countryComp <- subset(x = Comp(),
+                           subset = competition_name == input$Competition &
+                            competition_gender == input$Gender)
     shiny::selectizeInput(inputId = "Season",
-                       label = NULL,
-                       choices = unique(country_name$season_name),
-                       multiple = F
+                          label = "Season",
+                          choices = unique(countryComp$season_name),
+                          multiple = F
                        )
   })
 
   ######################
-  # if ever this connection failed, we notify the user
-  # about this failed connection, so that they can know
-  # what has gone wrong
-  matchesDF <- eventReactive(input$CollectData,{
-    if (attempt::is_try_error(StatsBombR::FreeCompetitions())){
-      # Notify the user
-      shinyalert::shinyalert(text = "Could not connect")
-      } else {
-        # Continue computing if the connection was successful
-        comp <- subset(x = Competitions,
-                       subset = country_name == input$Country & competition_name == input$Competition & season_name == input$Season)
+  #country <- reactive({
+  #
+  #})
 
+  matchesDF <- eventReactive(input$CollectData,{
+        # Continue computing if the connection was successful
+        comp <- subset(x = Comp(),
+                       subset =
+                         ### need to add country in case more comps have same name
+                         competition_name == input$Competition &
+                         season_name == input$Season &
+                         competition_gender == input$Gender)
         StatsBombR::FreeMatches(Competitions = comp)
-        }
     })
 
   ######################
