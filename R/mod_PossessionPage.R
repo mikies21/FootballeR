@@ -25,7 +25,8 @@ mod_PossessionPage_ui <- function(id){
         title = "Away",
         shiny::plotOutput(outputId = ns("PossessionPlotAway"))
       )
-    )
+    ),
+    DT::DTOutput(outputId = ns("possession_table"))
 
 
   )
@@ -37,6 +38,23 @@ mod_PossessionPage_ui <- function(id){
 mod_PossessionPage_server <- function(id, r, matchesDF){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
+    ## possession stats
+    possession_stats <- reactive({
+      team_possessions <- split(r$MatchEvents(), r$MatchEvents()$possession_team.name)
+
+      team_possessions_list <- lapply(team_possessions, function(x){
+        sum(x$duration, na.rm = T)
+      })
+      total_possession_time <- team_possessions_list[[1]]+team_possessions_list[[2]]
+
+      data.frame("home" = 100*team_possessions_list[[matchesDF()$home_team.home_team_name]]/total_possession_time,
+                 "away" = 100*team_possessions_list[[matchesDF()$away_team.away_team_name]]/total_possession_time)
+    })
+
+    output$possession_table <- DT::renderDT({
+      possession_stats()
+    })
 
     ## get home teams possession
     HomeTeamPossession <- reactive({
