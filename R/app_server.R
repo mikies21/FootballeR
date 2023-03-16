@@ -57,7 +57,7 @@ app_server <- function(input, output, session) {
   #
   #})
 
-  matchesDF <- eventReactive(input$CollectData,{
+  matchesDF <- reactive({
         # Continue computing if the connection was successful
         comp <- subset(x = Comp(),
                        subset =
@@ -65,8 +65,20 @@ app_server <- function(input, output, session) {
                          competition_name == input$Competition &
                          season_name == input$Season &
                          competition_gender == input$Gender)
-        StatsBombR::FreeMatches(Competitions = comp)
+        compID <- unique(comp$competition_id)
+        seasonID <- unique(comp$season_id)
+
+        matches <- subset(x = AllMatches,
+                        subset = competition.competition_id == compID &
+                          season.season_id == seasonID)
+
+        return(matches)
     })
+
+
+  output$matchInfo <- shiny::renderPlot({
+    plot(rnorm(1:100000))
+  })
 
   ######################
   # both servers take a reactiveValue,
@@ -76,7 +88,7 @@ app_server <- function(input, output, session) {
   r <- reactiveValues()
 
   ### start page module that shows league data
-  mod_StartPage_server("StartPage_1")
+
 
 
   mod_CollectMatchData_server("CollectMatchData_1",

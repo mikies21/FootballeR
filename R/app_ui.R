@@ -121,9 +121,6 @@ app_ui <- function(request) {
           ####
           bs4Dash::tabItem(
             tabName = "Start",
-            fluidRow(
-              column(
-                width = 12,
                 bs4Dash::box(
                   width = 12,
                   collapsible = F,
@@ -138,10 +135,10 @@ app_ui <- function(request) {
                         label = "Gender:",
                         choices = c(`<i class='fa-solid fa-venus'></i><p>female</p>` = "female",
                                     `<i class='fa-solid fa-mars'></i><p>male</p>` = "male"),
-                        justified = FALSE,
+                        justified = TRUE,
                         selected = "male",
                         status = "primary",
-                        direction = "vertical",
+                        direction = "horizontal",
                         size = "sm"
                         )
                     ),
@@ -154,32 +151,19 @@ app_ui <- function(request) {
                       shiny::uiOutput(outputId = "SeasonUI")
                     ),
                     column(
-                      width = 1,
-                      shiny::actionButton(
-                        inputId = "CollectData",
-                        label = "Collect data"
+                      width = 5,
+                      mod_CollectMatchData_ui("CollectMatchData_1")
                       )
                     )
-                  )
-                )
-              )
-            ),
+                  ),
             shiny::fluidRow(
-              bs4Dash::box(
-                title = "Team and Match",
+              shiny::column(
                 width = 6,
-                closable = F,
-                collapsible = F,
-                conditionalPanel(
-                  condition = "input.CollectData == 0",
-                  "Click this and then all available matches will be shown",
-                ),
-                conditionalPanel(
-                  condition = "input.CollectData != 0",
-                  mod_CollectMatchData_ui("CollectMatchData_1")
+                shinycssloaders::withSpinner(
+                  ui_element = shiny::plotOutput(outputId = "matchInfo"),
+                  color="#0dc5c1")
                 )
               )
-            )
           ),
           bs4Dash::tabItem(
             tabName = "Shot",
