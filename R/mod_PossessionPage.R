@@ -48,8 +48,8 @@ mod_PossessionPage_server <- function(id, r, matchesDF){
       })
       total_possession_time <- team_possessions_list[[1]]+team_possessions_list[[2]]
 
-      data.frame("home" = 100*team_possessions_list[[matchesDF()$home_team.home_team_name]]/total_possession_time,
-                 "away" = 100*team_possessions_list[[matchesDF()$away_team.away_team_name]]/total_possession_time)
+      data.frame("home" = 100*team_possessions_list[[r$matchesDF()$home_team.home_team_name]]/total_possession_time,
+                 "away" = 100*team_possessions_list[[r$matchesDF()$away_team.away_team_name]]/total_possession_time)
     })
 
     output$possession_table <- DT::renderDT({
@@ -59,13 +59,13 @@ mod_PossessionPage_server <- function(id, r, matchesDF){
     ## get home teams possession
     HomeTeamPossession <- reactive({
       r$MatchEvents() %>%
-        dplyr::filter(possession_team.name == matchesDF()$home_team.home_team_name,
+        dplyr::filter(possession_team.name == r$matchesDF()$home_team.home_team_name,
                       play_pattern.name == "Regular Play")
     })
 
     AwayTeamPossession <- reactive({
       r$MatchEvents() %>%
-        dplyr::filter(possession_team.name == matchesDF()$away_team.away_team_name,
+        dplyr::filter(possession_team.name == r$matchesDF()$away_team.away_team_name,
                       play_pattern.name == "Regular Play")
     })
 

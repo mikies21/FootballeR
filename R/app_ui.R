@@ -121,49 +121,7 @@ app_ui <- function(request) {
           ####
           bs4Dash::tabItem(
             tabName = "Start",
-                bs4Dash::box(
-                  width = 12,
-                  collapsible = F,
-                  closable = F,
-                  title = "Welcome",
-                  "Thank you for visiting my app",
-                  shiny::fluidRow(
-                    shiny::column(
-                      width = 1,
-                      shinyWidgets::radioGroupButtons(
-                        inputId = "Gender",
-                        label = "Gender:",
-                        choices = c(`<i class='fa-solid fa-venus'></i><p>female</p>` = "female",
-                                    `<i class='fa-solid fa-mars'></i><p>male</p>` = "male"),
-                        justified = TRUE,
-                        selected = "male",
-                        status = "primary",
-                        direction = "horizontal",
-                        size = "sm"
-                        )
-                    ),
-                    shiny::column(
-                      width = 3,
-                      shiny::uiOutput(outputId = "CompetitionUI")
-                    ),
-                    shiny::column(
-                      width = 3,
-                      shiny::uiOutput(outputId = "SeasonUI")
-                    ),
-                    column(
-                      width = 5,
-                      mod_CollectMatchData_ui("CollectMatchData_1")
-                      )
-                    )
-                  ),
-            shiny::fluidRow(
-              shiny::column(
-                width = 6,
-                shinycssloaders::withSpinner(
-                  ui_element = shiny::plotOutput(outputId = "matchInfo"),
-                  color="#0dc5c1")
-                )
-              )
+            mod_CollectMatchData_ui("CollectMatchData_1")
           ),
           bs4Dash::tabItem(
             tabName = "Shot",

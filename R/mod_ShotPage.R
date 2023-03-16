@@ -56,13 +56,13 @@ mod_ShotPage_ui <- function(id){
 #' ShotPage Server Functions
 #'
 #' @noRd
-mod_ShotPage_server <- function(id, r, matchesDF){
+mod_ShotPage_server <- function(id, r){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     output$xG_matchPlot <- renderPlot({
         plot_xG_RaceChart(matchEvents = r$MatchEvents(),
-                          MatchesDF = matchesDF(),
+                          MatchesDF = r$matchesDF(),
                           matchID = unique(r$MatchEvents()$match_id)) +
         ggplot2::theme(legend.position = "bottom")
     })
@@ -70,8 +70,8 @@ mod_ShotPage_server <- function(id, r, matchesDF){
     MatchShots <- reactive({
       r$MatchEvents() %>%
         dplyr::filter(type.name == "Shot") %>%
-        dplyr::mutate(location.x = ifelse(team.name == unique(matchesDF()$home_team.home_team_name), location.x, 120 - location.x),
-                      location.y = ifelse(team.name == unique(matchesDF()$home_team.home_team_name), location.y, 80 - location.y))
+        dplyr::mutate(location.x = ifelse(team.name == unique(r$matchesDF()$home_team.home_team_name), location.x, 120 - location.x),
+                      location.y = ifelse(team.name == unique(r$matchesDF()$home_team.home_team_name), location.y, 80 - location.y))
 
       })
 
@@ -149,8 +149,8 @@ mod_ShotPage_server <- function(id, r, matchesDF){
     output$pitchPlot <- renderPlot({
       if (input$ShotPlayer == "Everyone") {
         MatchShots = MatchShots()
-      } else if (input$ShotPlayer %in% c(unique(matchesDF()$home_team.home_team_name),
-                                         unique(matchesDF()$away_team.away_team_name))) {
+      } else if (input$ShotPlayer %in% c(unique(r$matchesDF()$home_team.home_team_name),
+                                         unique(r$matchesDF()$away_team.away_team_name))) {
         MatchShots = MatchShots() %>%
           dplyr::filter(team.name == input$ShotPlayer)
       }
