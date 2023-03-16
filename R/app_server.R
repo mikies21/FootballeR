@@ -7,21 +7,24 @@
 app_server <- function(input, output, session) {
   # Your application server logic
 
-  Comp <- shiny::eventReactive(input$StartApp ,{
-    if (attempt::is_try_error(StatsBombR::FreeCompetitions())){
-      # Notify the user
-      shinyalert::shinyalert(text = "Could not connect")
-    } else {
-      return(StatsBombR::FreeCompetitions())
-    }
-    })
+
+  Comp <- reactive({
+    comp <- subset(x = Competitions,
+                   subset = competition_gender == input$Gender)
+  })
+    #shiny::eventReactive(input$StartApp ,{
+    #if (attempt::is_try_error(StatsBombR::FreeCompetitions())){
+    #  # Notify the user
+    #  shinyalert::shinyalert(text = "Could not connect")
+    #} else {
+    #  return(StatsBombR::FreeCompetitions())
+    #}
+    #})
 
   ### competition name based on contry selection
 
   output$CompetitionUI <- shiny::renderUI({
-    comp <- subset(x = Comp(),
-                   subset = competition_gender == input$Gender)
-    comp <- comp[, c("country_name", "competition_name")]
+    comp <- Comp()[, c("country_name", "competition_name")]
     comp <- split(comp, comp$country_name)
     comp <- lapply(comp, function(x) {
       setNames(unique(x)$competition_name, unique(x)$competition_name)

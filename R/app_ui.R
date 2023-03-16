@@ -123,59 +123,46 @@ app_ui <- function(request) {
             tabName = "Start",
             fluidRow(
               column(
-                width = 10,
+                width = 12,
                 bs4Dash::box(
                   width = 12,
                   title = "Welcome",
-                  "Thank you for visiting my app"
-                )
-              ),
-              column(
-                width = 2,
-                shiny::actionButton(
-                  inputId = "StartApp",
-                  label = "Run Query",
-                  width = "100%"
-                ),
-                shiny::conditionalPanel(
-                  condition = "input.StartApp == 0",
-                  "Run Query to find out available competitions"
+                  "Thank you for visiting my app",
+                  shiny::fluidRow(
+                    shiny::column(
+                      width = 1,
+                      shinyWidgets::radioGroupButtons(
+                        inputId = "Gender",
+                        label = "Gender:",
+                        choices = c(`<i class='fa-solid fa-venus'></i><p>female</p>` = "female",
+                                    `<i class='fa-solid fa-mars'></i><p>male</p>` = "male"),
+                        justified = FALSE,
+                        selected = "male",
+                        status = "primary",
+                        direction = "vertical",
+                        size = "sm"
+                        )
+                    ),
+                    shiny::column(
+                      width = 3,
+                      shiny::uiOutput(outputId = "CompetitionUI")
+                    ),
+                    shiny::column(
+                      width = 3,
+                      shiny::uiOutput(outputId = "SeasonUI")
+                    ),
+                    column(
+                      width = 1,
+                      shiny::actionButton(
+                        inputId = "CollectData",
+                        label = "Collect data"
+                      )
+                    )
+                  )
                 )
               )
             ),
             shiny::fluidRow(
-              bs4Dash::box(
-                title = "Competiton and Year",
-                width = 6,
-                shiny::fluidRow(
-                  column(
-                    width = 2,
-                    shiny::radioButtons(
-                      inputId = "Gender",
-                      label = "Gender",
-                      choices = c("male", "female"),
-                      selected = "male"
-                    )
-                  ),
-                  shiny::column(
-                    width = 6,
-                    shiny::uiOutput(outputId = "CompetitionUI")
-                  ),
-                  shiny::column(
-                    width = 4,
-                    shiny::uiOutput(outputId = "SeasonUI")
-                  )
-                ),
-                shiny::fluidRow(
-                  shiny::column(
-                    width = 12,
-                    shiny::actionButton(
-                      inputId = "CollectData",
-                      label = "Collect data"
-                    )
-                  )
-                )
-              ),
               bs4Dash::box(
                 title = "Team",
                 width = 6,
