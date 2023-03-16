@@ -126,6 +126,8 @@ app_ui <- function(request) {
                 width = 12,
                 bs4Dash::box(
                   width = 12,
+                  collapsible = F,
+                  closable = F,
                   title = "Welcome",
                   "Thank you for visiting my app",
                   shiny::fluidRow(
@@ -164,8 +166,10 @@ app_ui <- function(request) {
             ),
             shiny::fluidRow(
               bs4Dash::box(
-                title = "Team",
+                title = "Team and Match",
                 width = 6,
+                closable = F,
+                collapsible = F,
                 conditionalPanel(
                   condition = "input.CollectData == 0",
                   "Click this and then all available matches will be shown",
