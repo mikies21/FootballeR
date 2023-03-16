@@ -12,20 +12,24 @@ BugReports: https://github.com/mikies21/FootballeR/issues
 Depends: 
     R (>= 2.10)
 Imports: 
-    attempt,
     bs4Dash,
     config (>= 0.3.1),
+    cowplot,
     dplyr,
     DT,
     ggplot2,
+    ggprism,
     ggrepel,
     golem (>= 0.3.5),
+    janitor,
     magrittr,
-    shinipsum,
+    SBpitch,
     shiny (>= 1.7.3),
     shinyalert,
+    shinycssloaders,
+    shinyWidgets,
     StatsBombR,
-    thematic
+    tidyr
 Suggests: 
     spelling,
     testthat (>= 3.0.0)

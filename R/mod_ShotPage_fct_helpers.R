@@ -109,10 +109,10 @@ plot_xG_RaceChart <- function(matchEvents, MatchesDF, matchID, ExtraTime = F) {
       ggplot2::aes(x = as.numeric(minute), y = cum_xG, colour = team.name),
       size = 3
     ) +
-    ggrepel::geom_text_repel(
+    ggrepel::geom_label_repel(
       data = Goal_df,
       ggplot2::aes(x = as.numeric(minute), y = cum_xG, label = player.name),
-      size = 3,
+      size = 4,
       vjust = 1,
       hjust = 1
     ) +

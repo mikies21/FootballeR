@@ -19,7 +19,7 @@ mod_CollectMatchData_ui <- function(id) {
       "Thank you for visiting my app",
       shiny::fluidRow(
         shiny::column(
-          width = 1,
+          width = 2,
           shinyWidgets::radioGroupButtons(
             inputId = ns("Gender"),
             label = "Gender:",
@@ -35,15 +35,15 @@ mod_CollectMatchData_ui <- function(id) {
           )
         ),
         shiny::column(
-          width = 3,
+          width = 2,
           shiny::uiOutput(outputId = ns("CompetitionUI"))
         ),
         shiny::column(
-          width = 3,
+          width = 2,
           shiny::uiOutput(outputId = ns("SeasonUI"))
         ),
         column(
-          width = 5,
+          width = 6,
           shiny::uiOutput(outputId = ns("TeamsUI")),
           shinyWidgets::radioGroupButtons(
             inputId = ns("HomeAway"),
@@ -71,13 +71,33 @@ mod_CollectMatchData_ui <- function(id) {
 
 
         # )
-      ),
-      shiny::fluidRow(
-        shiny::column(
-          width = 6,
+      )
+    ),
+    shiny::fluidRow(
+      bs4Dash::tabBox(
+        width = 12,
+        title = "General Match Info and Stat",
+        type = "tabs",
+        side = "left",
+        collapsible = F,
+        closable = F,
+        tabPanel(
+          title = "Stats",
+          shiny::column(
+            width = 6,
+            shinycssloaders::withSpinner(
+              ui_element = shiny::plotOutput(outputId = ns("matchInfo")),
+              color="#0dc5c1"
+            )
+          )
+        ),
+        tabPanel(
+          title = "Lineups",
           shinycssloaders::withSpinner(
-            ui_element = shiny::plotOutput(outputId = ns("matchInfo")),
-            color="#0dc5c1")
+            ui_element = shiny::plotOutput(outputId = ns("LineupPlot")),
+            color="#0dc5c1"
+          )
+
         )
       )
     )
@@ -161,12 +181,6 @@ mod_CollectMatchData_server <- function(id, r) {
 
     r$matchesDF <- shiny::reactive({matchesDF()})
 
-
-    output$matchInfo <- shiny::renderPlot({
-      plot(rnorm(1:100000))
-    })
-
-
     ##### get unique teams in the league and season
     Teams <- reactive({
       unique(c(matchesDF()$home_team.home_team_name, matchesDF()$away_team.away_team_name))
@@ -205,11 +219,25 @@ mod_CollectMatchData_server <- function(id, r) {
       )
     })
 
+
+    ##### match selected from inputs
+
+    SelectedMatch <- reactive({
+      subset(TeamMatches(), subset = PastedMatches == input$Match)
+    })
+
+    ### Lineups graphic
+
+    output$LineupPlot <- renderPlot({
+      lineup <- lineups_plot(selected_match = SelectedMatch())
+      cowplot::plot_grid(lineup[[1]],lineup[[2]])
+    })
+
     ##### Get the Match events for the selected match.
     ##### runs only after actionButton input$CollectMatchData
     r$MatchEvents <- shiny::eventReactive(input$CollectMatchData, {
-      SelectedMatch <- subset(TeamMatches(), subset = PastedMatches == input$Match)
-      StatsBombR::allclean(StatsBombR::free_allevents(MatchesDF = SelectedMatch))
+
+      StatsBombR::allclean(StatsBombR::free_allevents(MatchesDF = SelectedMatch()))
     })
   })
 }
