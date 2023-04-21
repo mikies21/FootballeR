@@ -178,7 +178,7 @@ mod_ShotPage_server <- function(id, r){
                                        values = c(0,0.5,1))+
         ggplot2::scale_shape_manual(values = c("Corner" = 18, "Free Kick" = 18, "Open Play" = 16, "Penalty" = 8, "Kick Off" = 18, "Blocked" = 4))+
         ggplot2::theme(legend.position = "bottom")+
-        ggplot2::labs(colour = "xG", shape = "Shot Type")+
+        ggplot2::labs(colour = "xG", shape = "Shot Type")
 
 
         #### shot types c("Corner", "Free Kick", "Open Play", "Penalty", "Kick Off", "Blocked")
