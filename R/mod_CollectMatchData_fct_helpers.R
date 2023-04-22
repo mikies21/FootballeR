@@ -1,53 +1,9 @@
-#' create a plot with both teams line ups
-#' @param selected_match a selected match from the matches dataframe obtained from freematches function
-#' @return A ggplot with the lineup for the selected match
-#' @export
 
-lineups_plot <- function(selected_match) {
-  lineup <- StatsBombR::cleanlineups(StatsBombR::get.lineupsFree(Match = matchID)) %>%
-    tidyr::unnest(cols = positions) %>%
-    dplyr::filter(start_reason == "Starting XI") %>%
-    dplyr::left_join(lineup_pitch_positions, by = "position_id") %>%
-    dplyr::mutate(player_nickname = ifelse(is.na(player_nickname), player_name, player_nickname),
-                  positionx = ifelse(team_name == unique(matchID$home_team.home_team_name),
-                                     yes = positionx/1.9,
-                                     no = 120-(positionx/2)),
-                  positiony = ifelse(team_name == unique(matchID$home_team.home_team_name),
-                                     yes = positiony,
-                                     no = 80-positiony))
-
-  team_lineup <-  SBpitch::create_Pitch()+
-      ggplot2::geom_point(data = lineup,
-                          aes(x = positionx,
-                              y = positiony,
-                              colour = team_name),
-                          shape = 1,
-                          size = 5)+
-      ggplot2::geom_text(data = lineup,
-                         aes(x = positionx,
-                             y = positiony,
-                             label = jersey_number),
-                         size = 3)+
-      ggplot2::geom_label(data = lineup,
-                          aes(x = positionx,
-                              y = positiony,
-                              label = player_name),
-                          vjust = 1.5,
-                          size = 3)+
-    theme_void()
-
-  SBpitch::create_Pitch()%>%
-    plotly::ggplotly() %>%
-    plotly::layout(shapes = list(
-      list(type = "rect",
-           fillcolor = "blue")
-    ))
-  team_lineup
-}
+# Create a Plotly pitch ---------------------------------------------------
 
 annotate_pitch_plotly <- function(x){
-  plot_ly() %>%
-  add_markers(type = "scatter", x=c(11, 109), y=c(40, 40), marker = list(size = 2, color = "black"), hoverinfo = "skip",showlegend = F) %>%
+  plotly::plot_ly() %>%
+    plotly::add_markers(type = "scatter", x=c(11, 109), y=c(40, 40), marker = list(size = 2, color = "black"), hoverinfo = "skip",showlegend = F) %>%
   plotly::layout(
     showlegend = T,
     shapes = list(
@@ -73,19 +29,65 @@ annotate_pitch_plotly <- function(x){
       ))
 }
 
-annotate_pitch_plotly() %>%
-  add_trace(type="scatter",
-            data = lineup,
-            x =~positionx,
-            y=~positiony,
-            color=~team_name,
-            text =~player_nickname,
-            #opacity = 1,
-            hovertemplate = paste('<b>%{text}</b><extra></extra>'),
-            marker = list(size = 15,
-                          line = list(color =~team_name, width = 2)),
-            symbols = "x")
 
 
-80-40-11-5.5-7.32/2
-80-19.84
+# Line up Plot ------------------------------------------------------------
+
+lineups_plot <- function(selected_match) {
+  lineup <- StatsBombR::cleanlineups(StatsBombR::get.lineupsFree(Match = selected_match)) %>%
+    tidyr::unnest(cols = positions) %>%
+    dplyr::filter(start_reason == "Starting XI") %>%
+    dplyr::left_join(lineup_pitch_positions, by = "position_id") %>%
+    dplyr::mutate(player_nickname = ifelse(is.na(player_nickname), player_name, player_nickname),
+                  positionx = ifelse(team_name == unique(selected_match$home_team.home_team_name),
+                                     yes = positionx/1.9,
+                                     no = 120-(positionx/2)),
+                  positiony = ifelse(team_name == unique(selected_match$home_team.home_team_name),
+                                     yes = positiony,
+                                     no = 80-positiony))
+
+  annotate_pitch_plotly() %>%
+    plotly::add_trace(type="scatter",
+                      data = lineup,
+                      x =~positionx,
+                      y=~positiony,
+                      #line=~team_name,
+                      color=~team_name,
+                      text =~player_nickname,
+                      #opacity = 1,
+                      hovertemplate = paste('<b>%{text}</b><extra></extra>'),
+                      marker = list(color = 'rgba(255, 255, 255, 1)',
+                                    size = 20,
+                                    line = list(width = 2)),
+                      symbols = "o") %>%
+    plotly::add_trace(type = "scatter",
+                      mode = "text",
+                      data = lineup,
+                      x =~positionx,
+                      y=~positiony,
+                      #line=~team_name,
+                      text =~jersey_number,
+                      showlegend = FALSE) %>%
+    plotly::layout(
+      xaxis = list(
+        title = "",
+        zeroline = FALSE,
+        showline = FALSE,
+        showticklabels = FALSE,
+        showgrid = FALSE
+    ),
+    yaxis = list(
+      title = "",
+      zeroline = FALSE,
+      showline = FALSE,
+      showticklabels = FALSE,
+      showgrid = FALSE
+    ))
+
+}
+
+
+
+
+
+

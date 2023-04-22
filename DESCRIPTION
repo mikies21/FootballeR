@@ -14,7 +14,6 @@ Depends:
 Imports: 
     bs4Dash,
     config (>= 0.3.1),
-    cowplot,
     dplyr,
     DT,
     ggplot2,
@@ -23,6 +22,7 @@ Imports:
     golem (>= 0.3.5),
     janitor,
     magrittr,
+    plotly,
     SBpitch,
     shiny (>= 1.7.3),
     shinyalert,

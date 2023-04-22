@@ -11,6 +11,11 @@
 
 plot_xG_RaceChart <- function(matchEvents, MatchesDF, matchID, ExtraTime = F) {
 
+  ### example DATA DELETE
+  #matchEvents = StatsBombData
+  #MatchesDF = MatchID
+  #matchID = 69164
+  #ExtraTime = F
   ## using the season MatchDF get home and away infomation
   ## uild the plot title here
   home_team <- subset(x = MatchesDF, subset = match_id == matchID)$home_team.home_team_name
@@ -96,37 +101,108 @@ plot_xG_RaceChart <- function(matchEvents, MatchesDF, matchID, ExtraTime = F) {
     }) %>%
     dplyr::bind_rows()
 
-
-  ggplot2::ggplot() +
-    #ggplot2::geom_segment(ggplot2::aes(y = 0, yend = round(max(Shot_df$cum_xG)), x = halfs_end[1], xend = halfs_end[1]), colour = "grey") +
-    ggplot2::geom_vline(xintercept = halfs_end[1], colour = "grey")+
-    ggplot2::geom_line(
-      data = team_xG_df,
-      ggplot2::aes(x = as.numeric(minute), y = cum_xG, colour = team.name), show.legend = F
-    ) +
-    ggplot2::geom_point(
-      data = Goal_df,
-      ggplot2::aes(x = as.numeric(minute), y = cum_xG, colour = team.name),
-      size = 3
-    ) +
-    ggrepel::geom_label_repel(
-      data = Goal_df,
-      ggplot2::aes(x = as.numeric(minute), y = cum_xG, label = player.name),
-      size = 4,
-      vjust = 1,
-      hjust = 1
-    ) +
-    ggplot2::scale_x_continuous(
-      expand = c(0, 0), limits = c(0, NA),
-      breaks = breaks,
-      labels = labels
-    ) +
-    #ggplot2::scale_y_continuous(expand = c(0,0)) +
-    ggplot2::theme_minimal()+
-    ggplot2::labs(x = NULL, y = NULL, title = "xG Race Chart", subtitle = plot_subtitle) +
-    ggplot2::theme(
-      legend.title = ggplot2::element_blank(),
-      plot.title = ggplot2::element_text(hjust = 0.5),
-      plot.subtitle = ggplot2::element_text(hjust = 0.5)
-    )
+  plotly::plot_ly(type = "scatter",
+                  mode = 'lines+markers',
+                  data = team_xG_df,
+                  color=~team.name,
+                  x=~as.numeric(minute),
+                  y=~cum_xG,
+                  text=~minute,
+                  hoverinfo = "none",
+                  marker = list(size = 1)) %>%
+    plotly::add_markers(data = Goal_df,
+                        type = "scatter",
+                        x=~as.numeric(minute),
+                        y=~cum_xG,
+                        color =~team.name,
+                        text=~player.name,
+                        hovertemplate = paste("<b>%{text}</b><extra></extra>"),
+                        marker = list(size = 13),
+                        showlegend = FALSE) %>%
+    plotly::add_markers(data = Shot_df,
+                        type = "scatter",
+                        x=~as.numeric(minute),
+                        y=~cum_xG,
+                        color =~team.name,
+                        text=~paste0(player.name, "<br>",
+                                    shot.outcome.name),
+                        hovertemplate = paste("%{text}<extra></extra>"),
+                        marker = list(size = 5),
+                        showlegend = FALSE,
+                        symbols = "x") %>%
+    plotly::layout(
+      showlegend = T,
+      legend = list(orientation = "h",   # show entries horizontally
+                    xanchor = "center",  # use center of legend as anchor
+                    x = 0.5),
+      shapes = list(
+        list(type = "line", layer='below', line = list(color = "grey"), x0 = halfs_end[1], y0 = 0, x1 = halfs_end[1], y1 = max(Shot_df$cum_xG))
+        ),
+      title = paste("<b>xG Race Chart</b><br>", plot_subtitle),
+      xaxis = list(
+        title = "",
+        ticktext=labels,
+        tickvals=breaks
+      ),
+      yaxis = list(
+        title = "cumulative xG"
+      ))
 }
+
+plot_shots <- function(MatchShots){
+
+  #####################################################
+  #comp <- StatsBombR::FreeCompetitions() %>%
+  #  dplyr::filter(competition_id==11 & season_name=="2005/2006")
+  #MatchID = 69164
+  #Matches <- StatsBombR::FreeMatches(comp)
+  #matchesDF <- Matches %>%
+  #  dplyr::filter(match_id == 69164)
+  #StatsBombData <- StatsBombR::free_allevents(MatchesDF = matchesDF, Parallel = T)
+  #StatsBombData = StatsBombR::allclean(StatsBombData)
+
+  ##################################################
+
+
+
+
+
+  #MatchShots = StatsBombData %>%
+  #  dplyr::filter(type.name == "Shot") %>%
+  #  dplyr::mutate(location.x = ifelse(team.name == unique(matchesDF$home_team.home_team_name), location.x, 120 - location.x),
+  #                location.y = ifelse(team.name == unique(matchesDF$home_team.home_team_name), location.y, 80 - location.y))
+
+  ShotPlot <- annotate_pitch_plotly() %>%
+    plotly::add_trace(type="scatter",
+                      data = MatchShots,
+                      x=~location.x,
+                      y=~location.y,
+                      color=~shot.statsbomb_xg,
+                      symbol=~shot.type.name,
+                      text =~paste0(player.name, "<br>", shot.outcome.name, "<br>xG: ", round(shot.statsbomb_xg, 3)),
+                      hovertemplate = paste('%{text}<extra></extra>'),
+                      showlegend = T) %>%
+    plotly::layout(
+      xaxis = list(
+        title = "",
+        zeroline = FALSE,
+        showline = FALSE,
+        showticklabels = FALSE,
+        showgrid = FALSE
+      ),
+      yaxis = list(
+        title = "",
+        zeroline = FALSE,
+        showline = FALSE,
+        showticklabels = FALSE,
+        showgrid = FALSE
+      ))
+  #### shot types c("Corner", "Free Kick", "Open Play", "Penalty", "Kick Off", "Blocked")
+  #### select the shape for each
+  #ggplot2::scale_shape_manual()
+  #xlim(c(60,120))
+  #ggplot2::coord_flip()
+
+  ShotPlot
+}
+

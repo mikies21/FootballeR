@@ -94,7 +94,7 @@ mod_CollectMatchData_ui <- function(id) {
         tabPanel(
           title = "Lineups",
           shinycssloaders::withSpinner(
-            ui_element = shiny::plotOutput(outputId = ns("LineupPlot")),
+            ui_element = plotly::plotlyOutput(outputId = ns("LineupPlot")),
             color="#0dc5c1"
           )
 
@@ -115,14 +115,6 @@ mod_CollectMatchData_server <- function(id, r) {
       comp <- subset(x = Competitions,
                      subset = competition_gender == input$Gender)
     })
-    #shiny::eventReactive(input$StartApp ,{
-    #if (attempt::is_try_error(StatsBombR::FreeCompetitions())){
-    #  # Notify the user
-    #  shinyalert::shinyalert(text = "Could not connect")
-    #} else {
-    #  return(StatsBombR::FreeCompetitions())
-    #}
-    #})
 
     ### competition name based on contry selection
 
@@ -171,7 +163,9 @@ mod_CollectMatchData_server <- function(id, r) {
       compID <- unique(comp$competition_id)
       seasonID <- unique(comp$season_id)
 
-      matches <- subset(x = AllMatches,
+       ## uses api to get the data
+      matches <- #StatsBombR::FreeMatches(Competitions = comp)
+        subset(x = AllMatches,
                         subset = competition.competition_id == compID &
                           season.season_id == seasonID)
 
@@ -228,17 +222,16 @@ mod_CollectMatchData_server <- function(id, r) {
 
     ### Lineups graphic
 
-    output$LineupPlot <- renderPlot({
-      lineup <- lineups_plot(selected_match = SelectedMatch())
-      cowplot::plot_grid(lineup[[1]],lineup[[2]])
+    output$LineupPlot <- plotly::renderPlotly({
+      lineups_plot(selected_match = SelectedMatch())
     })
 
     ##### Get the Match events for the selected match.
     ##### runs only after actionButton input$CollectMatchData
     r$MatchEvents <- shiny::eventReactive(input$CollectMatchData, {
-
       StatsBombR::allclean(StatsBombR::free_allevents(MatchesDF = SelectedMatch()))
     })
+
   })
 }
 
