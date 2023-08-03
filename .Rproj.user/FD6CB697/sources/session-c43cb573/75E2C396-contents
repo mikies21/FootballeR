@@ -1,0 +1,19 @@
+
+library(StatsBombR)
+Competition <- FreeCompetitions() |>
+  filter(competition_name == "Serie A", season_name == "2015/2016")
+
+Matches <- FreeMatches(Competitions = Competition)
+## oder matches by date
+Matches <- Matches |> 
+  arrange(match_date) |>
+  mutate(match_date = as.Date(match_date),
+         match_id = as.factor(match_id))
+
+CreateLeagueTable(Matches = Matches)
+
+MatchesEvents <- free_allevents(Matches, Parallel = T)
+
+MatchEvents <- MatchesEvents |> 
+  filter(match_id == 3878541)
+

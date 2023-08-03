@@ -1,0 +1,26 @@
+#' Create a League table for the selected matches
+#' @param MatchEvents A datafame of Matches Events obtained from StasBombR functions free_allevents. multiple matches are allowed
+#' @returns a dataframe with the amount of passees attempted and the percentage possiseesion for each teeam
+
+
+PossessionMatch <- function(MatchEvents) {
+  ## drop unused levels in match id
+  MatchEvents$match_id <- droplevels(MatchEvents$match_id)
+  ## split matches into single match dataframes
+  MatchPasses <- MatchEvents |>
+    dplyr::select(match_id, team.name, type.name) |>
+    dplyr::filter(type.name == "Pass")
+  Possession <- split(MatchPasses, MatchPasses$match_id) |>
+    lapply(function(x) {
+    ## to each dataframe find total passes attempted
+      TotPasses <- length(x$type.name)
+      ## find percentage possession
+      x |>
+        dplyr::select(team.name, type.name) |>
+        table() |>
+        as.data.frame() |>
+        dplyr::mutate(perc_possession = Freq/TotPasses*100)
+      })
+
+  return(Possession)
+}

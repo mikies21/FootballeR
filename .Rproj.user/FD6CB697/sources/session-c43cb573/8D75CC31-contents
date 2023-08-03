@@ -1,0 +1,13 @@
+Package: FootballeR
+Type: Package
+Title: Set of Analysis function for StatsBomb football data
+Version: 0.1.0
+Author: Michele Fresneda
+Maintainer: Michele Fresneda <michelefresnedaf@gmail.com>
+Description: A set of functions to be used with StatsBombR football data to analyse football matches, seasons and more.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr
+RoxygenNote: 7.2.3
